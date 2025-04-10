@@ -18,6 +18,13 @@ base_path = os.path.dirname(__file__)  # path of the current .py file
 model_dir = os.path.join(base_path, 'models')
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
+######################
+#variabes
+######################
+
+keys=['Leather', 'Cork', 'wool', 'LacedMatt', 'Gfoam', 'Plastic', 'Carpet', 'bubble', 'Efoam', 'cotton', 'LongCarpet', 'Flat', 'felt', 'Jeans', 'Ffoam']
+
+######################
 class SimpleLSTM(nn.Module):
     def __init__(self, input_size, hidden_size, output_size, num_layers=1):
         super(SimpleLSTM, self).__init__()
@@ -35,7 +42,7 @@ class SimpleLSTM(nn.Module):
         return out
     
 
-class dataPreprocessor:
+class ImageDataPreprocessor:
     """
     Class to take in a dataset and try make it look more like the existing data that the odel was trained on
     You could do this yourself but this feels neater and a bit more 'idiot-proof'
@@ -75,13 +82,13 @@ class opticalSensor:
     def predict_texture(self,images):
         if type(images)!=type(torch.tensor([])): #ensure that the data is correct format
             images=torch.tensor(images).to(device)
-        images=images.reshape((1,len(images[0]),110*120))
-        return self.model(images).cpu().detach().numpy()[0]
+        images=images.reshape((1,len(images[0]),110*120)).to(torch.float32)
+        return np.argmax(self.model(images).cpu().detach().numpy()[0])
     def predict_friction(self,images):
         if type(images)==type(torch.tensor([])): #ensure that the data is correct format
             images=images.cpu().detach().numpy()
         images=images.reshape((1,len(images[0])*110*120))
-        return self.friction.predict(images)
+        return self.friction.predict(images)[0]
 
 class PressTipSensor:
     def __init__(self): #load in the model
