@@ -13,7 +13,9 @@ import torch
 import torch.nn as nn
 from sklearn.ensemble import RandomForestRegressor
 import joblib
-
+import os
+base_path = os.path.dirname(__file__)  # path of the current .py file
+model_dir = os.path.join(base_path, 'models')
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 class SimpleLSTM(nn.Module):
@@ -68,8 +70,8 @@ class dataPreprocessor:
 class opticalSensor:
     def __init__(self): #load in the model
         self.model = SimpleLSTM(110*120,350,15,3).to(device)
-        self.model.load_state_dict(torch.load("models/mymodelCNN_augmented"))
-        self.friction=joblib.load('models/random_forest_model.pkl')
+        self.model.load_state_dict(torch.load(os.path.join(model_dir,"models/mymodel_lstm_augment")))
+        self.friction=joblib.load(os.path.join(model_dir,'models/random_forest_model.pkl'))
     def predict_texture(self,images):
         if type(images)!=type(torch.tensor([])): #ensure that the data is correct format
             images=torch.tensor(images).to(device)
@@ -79,19 +81,25 @@ class opticalSensor:
         if type(images)==type(torch.tensor([])): #ensure that the data is correct format
             images=images.cpu().detach().numpy()
         images=images.reshape((1,len(images)*110*120))
-        return self.friction(images)
+        return self.friction.predict(images)
 
 class PressTipSensor:
     def __init__(self): #load in the model
-        self.model=...
-        self.friction=joblib.load('models/random_forest_model.pkl')
+        self.model = joblib.load(os.path.join(model_dir, 'random_forest_classifier_elec.pkl'))
+        self.friction = joblib.load(os.path.join(model_dir, 'random_forest_model.pkl'))
     def predict_texture(self,data):
-        if type(images)==type(torch.tensor([])): #ensure that the data is correct format
-            images=images.cpu().detach().numpy()
+        if type(data)==type(torch.tensor([])): #ensure that the data is correct format
+            data=data.cpu().detach().numpy()
+        data=data.reshape((1,-1))
+        return self.model.predict(data)[0]
     def predict_friction(self,data):
-        if type(images)==type(torch.tensor([])): #ensure that the data is correct format
-            images=images.cpu().detach().numpy()
+        if type(data)==type(torch.tensor([])): #ensure that the data is correct format
+            data=data.cpu().detach().numpy()
+        data=data.reshape((1,-1))
+        return self.friction.predict(data)[0]
 
 if __name__=="__main__":
-    print("run")
     presstip = PressTipSensor()
+    data=np.random.random((1,10,4))
+    print("Friction:",presstip.predict_friction(data))
+    print("Classification:",presstip.predict_texture(data))
