@@ -100,6 +100,7 @@ class PressTipSensor:
 
 if __name__=="__main__":
     presstip = PressTipSensor()
-    data=np.random.random((1,10,4))
+    data=np.random.random((1,64))
     print("Friction:",presstip.predict_friction(data))
+    data=np.random.random((1,10,4))
     print("Classification:",presstip.predict_texture(data))
