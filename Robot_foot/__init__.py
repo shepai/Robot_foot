@@ -70,23 +70,23 @@ class dataPreprocessor:
 class opticalSensor:
     def __init__(self): #load in the model
         self.model = SimpleLSTM(110*120,350,15,3).to(device)
-        self.model.load_state_dict(torch.load(os.path.join(model_dir,"models/mymodel_lstm_augment")))
-        self.friction=joblib.load(os.path.join(model_dir,'models/random_forest_model.pkl'))
+        self.model.load_state_dict(torch.load(os.path.join(model_dir,"mymodel_lstm_augment")))
+        self.friction=joblib.load(os.path.join(model_dir,'random_forest_model_optical.pkl'))
     def predict_texture(self,images):
         if type(images)!=type(torch.tensor([])): #ensure that the data is correct format
             images=torch.tensor(images).to(device)
-        images=images.reshape((1,len(images),110*120))
+        images=images.reshape((1,len(images[0]),110*120))
         return self.model(images).cpu().detach().numpy()[0]
     def predict_friction(self,images):
         if type(images)==type(torch.tensor([])): #ensure that the data is correct format
             images=images.cpu().detach().numpy()
-        images=images.reshape((1,len(images)*110*120))
+        images=images.reshape((1,len(images[0])*110*120))
         return self.friction.predict(images)
 
 class PressTipSensor:
     def __init__(self): #load in the model
         self.model = joblib.load(os.path.join(model_dir, 'random_forest_classifier_elec.pkl'))
-        self.friction = joblib.load(os.path.join(model_dir, 'random_forest_model.pkl'))
+        self.friction = joblib.load(os.path.join(model_dir, 'random_forest_model_electric_friction.pkl'))
     def predict_texture(self,data):
         if type(data)==type(torch.tensor([])): #ensure that the data is correct format
             data=data.cpu().detach().numpy()
