@@ -11,6 +11,9 @@ import numpy as np
 import cv2
 import torch
 import torch.nn as nn
+from sklearn.ensemble import RandomForestRegressor
+import joblib
+
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 class SimpleLSTM(nn.Module):
@@ -65,8 +68,8 @@ class dataPreprocessor:
 class opticalSensor:
     def __init__(self): #load in the model
         self.model = SimpleLSTM(110*120,350,15,3).to(device)
-        self.model.load_state_dict(torch.load("mymodelCNN_augmented"))
-        self.friction=...
+        self.model.load_state_dict(torch.load("models/mymodelCNN_augmented"))
+        self.friction=joblib.load('models/random_forest_model.pkl')
     def predict_texture(self,images):
         if type(images)!=type(torch.tensor([])): #ensure that the data is correct format
             images=torch.tensor(images).to(device)
@@ -81,10 +84,14 @@ class opticalSensor:
 class PressTipSensor:
     def __init__(self): #load in the model
         self.model=...
-        self.friction=...
+        self.friction=joblib.load('models/random_forest_model.pkl')
     def predict_texture(self,data):
         if type(images)==type(torch.tensor([])): #ensure that the data is correct format
             images=images.cpu().detach().numpy()
     def predict_friction(self,data):
         if type(images)==type(torch.tensor([])): #ensure that the data is correct format
             images=images.cpu().detach().numpy()
+
+if __name__=="__main__":
+    print("run")
+    presstip = PressTipSensor()
