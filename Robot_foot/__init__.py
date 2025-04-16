@@ -82,8 +82,13 @@ class opticalSensor:
     def predict_texture(self,images):
         if type(images)!=type(torch.tensor([])): #ensure that the data is correct format
             images=torch.tensor(images).to(device)
-        images=images.reshape((1,len(images[0]),110*120)).to(torch.float32)
+        images=images.reshape((1,images.shape[0],110*120)).to(torch.float32)
         return np.argmax(self.model(images).cpu().detach().numpy()[0])
+    def predict_texture_multi(self,images):
+        if type(images)!=type(torch.tensor([])): #ensure that the data is correct format
+            images=torch.tensor(images).to(device)
+        images=images.reshape((images.shape[0],images.shape[1],110*120)).to(torch.float32)
+        return np.argmax(self.model(images).cpu().detach().numpy(),axis=1)
     def predict_friction(self,images):
         if type(images)==type(torch.tensor([])): #ensure that the data is correct format
             images=images.cpu().detach().numpy()
@@ -104,6 +109,12 @@ class PressTipSensor:
             data=data.cpu().detach().numpy()
         data=data.reshape((1,-1))
         return self.friction.predict(data)[0]
+    def predict_texture_multi(self,images):
+        if type(data)==type(torch.tensor([])): #ensure that the data is correct format
+            data=data.cpu().detach().numpy()
+        data=data.reshape((1,-1))
+        data=data.reshape((len(data),1)).to(torch.float32)
+        return self.model.predict(data)
 
 if __name__=="__main__":
     presstip = PressTipSensor()
