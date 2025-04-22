@@ -51,6 +51,7 @@ class ImageDataPreprocessor:
         self.h=110
         self.w=120
     def process_raw_image(self,image): #takes in the image you wish to process
+        image = cv2.cvtColor(image cv2.COLOR_BGR2GRAY)
         image=cv2.resize(image,(self.h,self.w),interpolation=cv2.INTER_AREA) #resize 
         #apply Sobel filter in x-direction
         sobel_x = cv2.Sobel(image, cv2.CV_64F, 1, 0, ksize=3)  #ksize=3 for a 3x3 Sobel kernel
