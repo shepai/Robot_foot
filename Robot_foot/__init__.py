@@ -70,10 +70,10 @@ class ImageDataPreprocessor:
             X.append(t)
         return np.array(X)
     def process_video(self,video): #takes in the frames of images
-        t=[]
+        _=[]
         for t in range(len(video)):
-            t.append(self.process_raw_image(video[t]))
-        return np.array(video)
+            t_.append(self.process_raw_image(video[t]))
+        return np.array(t_)
 
 class opticalSensor:
     def __init__(self): #load in the model
