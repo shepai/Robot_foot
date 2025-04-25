@@ -70,7 +70,7 @@ class ImageDataPreprocessor:
             X.append(t)
         return np.array(X)
     def process_video(self,video): #takes in the frames of images
-        _=[]
+        t_=[]
         for t in range(len(video)):
             t_.append(self.process_raw_image(video[t]))
         return np.array(t_)
