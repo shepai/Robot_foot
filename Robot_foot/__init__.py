@@ -58,6 +58,8 @@ class ImageDataPreprocessor:
         new_dim=(int(640*compression_dim),int(480*compression_dim))#cv2.resize(image,(self.h,self.w),interpolation=cv2.INTER_AREA) #resize 
         image = cv2.resize(image,new_dim,interpolation=cv2.INTER_AREA)[crop[2]:crop[3],crop[0]:crop[1]]
         #apply Sobel filter in x-direction
+        return self.sobel(image)
+    def sobel(self,image):
         sobel_x = cv2.Sobel(image, cv2.CV_64F, 1, 0, ksize=3)  #ksize=3 for a 3x3 Sobel kernel
         #apply Sobel filter in y-direction
         sobel_y = cv2.Sobel(image, cv2.CV_64F, 0, 1, ksize=3)
