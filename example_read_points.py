@@ -1,15 +1,13 @@
-from Robot_foot import opticalSensor, keys, ImageDataPreprocessor
+from Robot_foot import opticalSensor
 import numpy as np
 import matplotlib.pyplot as plt
 import cv2
 import matplotlib
-matplotlib.use('Agg')  # Use a non-GUI backend
+matplotlib.use('TkAgg')  
 #load in the sensor model
 tactip = opticalSensor()
-processor=ImageDataPreprocessor()
 #load in image 
 image=cv2.imread("assets/example_image.png",cv2.IMREAD_GRAYSCALE)
-#image=processor.sobel(image)
 coord=tactip.predict_points(image.reshape((1,-1))) #preduct points
 
 plt.imshow(image,cmap="gray")
