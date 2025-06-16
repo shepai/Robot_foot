@@ -12,6 +12,7 @@ import cv2
 import torch
 import torch.nn as nn
 from sklearn.ensemble import RandomForestRegressor
+from sklearn.linear_model import Ridge, LinearRegression
 import joblib
 import os
 from sklearn.decomposition import PCA
@@ -87,7 +88,7 @@ class opticalSensor:
         self.model.load_state_dict(torch.load(os.path.join(model_dir,"mymodel_lstm_augment")))
         self.friction=joblib.load(os.path.join(model_dir,'random_forest_model_optical.pkl'))
         self.pca= joblib.load(os.path.join(model_dir,'pca_model.joblib'))
-        self.point_predict=joblib.load(os.path.join(model_dir,'regression_model.joblib'))
+        self.point_predict=joblib.load(os.path.join(model_dir,'regression_model_ridge.joblib'))
     def predict_texture(self,images):
         if type(images)!=type(torch.tensor([])): #ensure that the data is correct format
             images=torch.tensor(images).to(device)
