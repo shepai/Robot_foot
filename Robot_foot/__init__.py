@@ -14,6 +14,7 @@ import torch.nn as nn
 from sklearn.ensemble import RandomForestRegressor
 import joblib
 import os
+from sklearn.decomposition import PCA
 base_path = os.path.dirname(__file__)  # path of the current .py file
 model_dir = os.path.join(base_path, 'models')
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -83,6 +84,8 @@ class opticalSensor:
         self.model = SimpleLSTM(110*120,350,15,3).to(device)
         self.model.load_state_dict(torch.load(os.path.join(model_dir,"mymodel_lstm_augment")))
         self.friction=joblib.load(os.path.join(model_dir,'random_forest_model_optical.pkl'))
+        self.pca= joblib.load(os.path.join(model_dir,'pca_model.joblib'))
+        self.point_predict=joblib.load(os.path.join(model_dir,'regression_model.joblib'))
     def predict_texture(self,images):
         if type(images)!=type(torch.tensor([])): #ensure that the data is correct format
             images=torch.tensor(images).to(device)
@@ -98,6 +101,9 @@ class opticalSensor:
             images=images.cpu().detach().numpy()
         images=images.reshape((1,len(images[0])*110*120))
         return self.friction.predict(images)[0]
+    def predict_points(self,image): #take in an image and attempt to predict the points
+        x_reduced = self.pca.transform(image)
+        return self.point_predict.predict(x_reduced).reshape((133,2))
 
 class PressTipSensor:
     def __init__(self): #load in the model
