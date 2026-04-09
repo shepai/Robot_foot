@@ -1,0 +1,49 @@
+<mujoco model="force_pad_array">
+  <compiler angle="degree" coordinate="local"/>
+  <option gravity="0 0 -9.81" timestep="0.002"/>
+
+  <default>
+    <geom type="box" size="0.02 0.02 0.005"
+          rgba="0.2 0.6 0.8 1"
+          condim="3"
+          friction="1 0.005 0.0001"/>
+  </default>
+
+  <worldbody>
+    <!-- Ground -->
+    <geom name="ground" type="plane" size="1 1 0.1" rgba="0.9 0.9 0.9 1"/>
+
+    <!-- Pad array -->
+    <body name="pad_array" pos="0 0 0.01">
+
+        <!-- Row 0 -->
+        <geom name="pad_0_0" pos="-0.04 -0.08 0" rgba="1 0 0 1"/>
+        <geom name="pad_0_1" pos="-0.04 -0.04 0" rgba="0 1 0 1"/>
+        <geom name="pad_0_2" pos="-0.04 0.00 0" rgba="1 0 0 1"/>
+        <geom name="pad_0_3" pos="-0.04 0.04 0" rgba="0 1 0 1"/>
+        <geom name="pad_0_4" pos="-0.04 0.08 0" rgba="1 0 0 1"/>
+
+        <!-- Row 1 -->
+        <geom name="pad_1_0" pos="0.00 -0.08 0" rgba="0 1 0 1"/>
+        <geom name="pad_1_1" pos="0.00 -0.04 0" rgba="1 0 0 1"/>
+        <geom name="pad_1_2" pos="0.00 0.00 0" rgba="0 1 0 1"/>
+        <geom name="pad_1_3" pos="0.00 0.04 0" rgba="1 0 0 1"/>
+        <geom name="pad_1_4" pos="0.00 0.08 0" rgba="0 1 0 1"/>
+
+        <!-- Row 2 -->
+        <geom name="pad_2_0" pos="0.04 -0.08 0" rgba="1 0 0 1"/>
+        <geom name="pad_2_1" pos="0.04 -0.04 0" rgba="0 1 0 1"/>
+        <geom name="pad_2_2" pos="0.04 0.00 0" rgba="1 0 0 1"/>
+        <geom name="pad_2_3" pos="0.04 0.04 0" rgba="0 1 0 1"/>
+        <geom name="pad_2_4" pos="0.04 0.08 0" rgba="1 0 0 1"/>
+
+        </body>
+
+    <!-- Test object to press on pads -->
+    <body name="probe" pos="0 0 0.2">
+      <joint type="free"/>
+      <geom type="sphere" size="0.03" rgba="0.8 0.2 0.2 1" mass="0.5"/>
+    </body>
+
+  </worldbody>
+</mujoco>

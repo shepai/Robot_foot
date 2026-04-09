@@ -6,6 +6,8 @@ A neater write up of the tactile sensor development making use of trained models
 - pytorch
 - opencv
 
+# Mujuco 
+We made simulated sensors to be used as a tool for sim2real tasks. 
 
 # Citation 
 
