@@ -70,7 +70,7 @@ with mujoco.viewer.launch_passive(model, data) as viewer:
 
         # Update heatmap
         show_heatmap(grid)      
-
+        
         # Sync MuJoCo viewer
         viewer.sync()
 
