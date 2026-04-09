@@ -1,0 +1,32 @@
+<mujoco model="circle_force_pad_wedges">
+
+    <!-- ASSETS (meshes, textures, etc.) -->
+   
+
+    <!-- Circular base -->
+    <geom name="base" type="cylinder" size="0.021 0.0025" pos="0 0 0"
+          rgba="0.8 0.8 0.8 1"/>
+
+    <!-- 3x3 central tactile pads -->
+    <body name="pad_array" pos="0 0 0.0025">
+      <!-- Row 0 -->
+      <geom name="pad_0_0" pos="-0.01 -0.01 0" size="0.005 0.005 0.0025" rgba="1 0 0 1"/>
+      <geom name="pad_0_1" pos="-0.01 0 0" size="0.005 0.005 0.0025" rgba="0 1 0 1"/>
+      <geom name="pad_0_2" pos="-0.01 0.01 0" size="0.005 0.005 0.0025" rgba="1 0 0 1"/>
+      <!-- Row 1 -->
+      <geom name="pad_1_0" pos="0 -0.01 0" size="0.005 0.005 0.0025" rgba="0 1 0 1"/>
+      <geom name="pad_1_1" pos="0 0 0" size="0.005 0.005 0.0025" rgba="1 0 0 1"/>
+      <geom name="pad_1_2" pos="0 0.01 0" size="0.005 0.005 0.0025" rgba="0 1 0 1"/>
+      <!-- Row 2 -->
+      <geom name="pad_2_0" pos="0.01 -0.01 0" size="0.005 0.005 0.0025" rgba="1 0 0 1"/>
+      <geom name="pad_2_1" pos="0.01 0 0" size="0.005 0.005 0.0025" rgba="0 1 0 1"/>
+      <geom name="pad_2_2" pos="0.01 0.01 0" size="0.005 0.005 0.0025" rgba="1 0 0 1"/>
+    </body>
+
+    <!-- 4 wedge-shaped outer pads -->
+    <geom name="wedge_top" type="mesh" mesh="wedge_mesh"  size="0.001 0.001 0.001" pos="0.015 0.015 0.003" quat="0 0 0 1" rgba="0.2 0.6 0.8 1"/>
+    <geom name="wedge_bottom" type="mesh" mesh="wedge_mesh"  size="0.001 0.001 0.001" pos="0.015 -0.015 0.005" quat="0 0 1 0" rgba="0.2 0.6 0.8 1"/>
+    <geom name="wedge_left" type="mesh" mesh="wedge_mesh"  size="0.001 0.001 0.001" pos="-0.015 -0.015 0.005" quat="0 1 1 0" rgba="0.2 0.6 0.8 1"/>
+  <geom name="wedge_right" type="mesh" mesh="wedge_mesh"  size="0.001 0.001 0.001" pos="0.015 0.015 0.005" quat="0 -1 1 0" rgba="0.2 0.6 0.8 1"/>
+
+</mujoco>

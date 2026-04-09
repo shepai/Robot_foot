@@ -23,7 +23,7 @@ def show_heatmap(grid):
 import time
 
 # Load model
-model = mj.MjModel.from_xml_path("C:/Users/dexte/Documents/GitHub/Robot_foot/Mujuco/ball_presstip_env2.xml")
+model = mj.MjModel.from_xml_path("C:/Users/dexte/Documents/GitHub/Robot_foot/Mujuco/ball_presstip_env1.xml")
 data = mj.MjData(model)
 
 # --- Pad setup ---
