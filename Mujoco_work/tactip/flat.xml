@@ -1,0 +1,38 @@
+<mujoco model="tactip_structural_grid">
+    <option timestep="0.0005" gravity="0 0 -9.81"/>
+    
+    <!-- FIX 1 & 2: Separated tags, removed procedural conflict to load image path directly -->
+    <asset>
+        <texture name="skin_tex" type="2d" file="/home/dexter/Documents/GitHub/Robot_foot/assets/example_image.png"/>
+        <material name="skin_mat" texture="skin_tex" texrepeat="1 1"/>
+    </asset>
+    
+    <worldbody>
+        <!-- Environment Illumination -->
+        <light pos="0 0 4" dir="0 0 -1"/>
+        <geom name="floor" type="plane" size="2 2 .1" rgba=".8 .8 .8 1"/>
+        
+        <!-- Rigid capsule obstacle -->
+        <body name="obstacle" pos="0 0 0.5">
+            <geom type="capsule" size="0.1 0.4" quat="1 0 0 0" rgba="0.7 0.7 0.7 1"/>
+        </body>
+
+        <body name="falling_cloth" pos="0 0 1">
+            <freejoint/> <!-- Allows the structure to fall freely -->
+            <inertial pos="0 0 0" mass="0.1" diaginertia="0.001 0.001 0.001"/>
+            
+            <composite type="grid" count="20 20 1" spacing="0.01">
+                <!-- FIX 4: Re-added physical stiffness variables to maintain grid structure -->
+                <joint kind="main" stiffness="1.0" damping="2.0"/>
+                <tendon kind="main" stiffness="2.0" damping="20.0"/>
+                <tendon kind="shear" stiffness="1.0" damping="15.0"/>
+                
+                <!-- Set the underlying balls to completely transparent (alpha = 0) so only your image shows -->
+                <geom type="sphere" size="0.005" rgba="0.2 0.6 0.9 0" mass="0.01"/>
+                
+                <!-- FIX 3: Re-introduced the skin macro element to map the image across the particles -->
+                <skin material="skin_mat" texcoord="true"/>
+            </composite>
+        </body>
+    </worldbody>
+</mujoco>

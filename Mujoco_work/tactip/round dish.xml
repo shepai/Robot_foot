@@ -1,0 +1,103 @@
+<mujoco model="tactip_structural_grid">
+    <option timestep="0.0005" gravity="0 0 -9.81"/>
+    
+    <asset>
+        <texture name="skin_tex" type="2d" file="/home/dexter/Documents/GitHub/Robot_foot/assets/example_image.png"/>
+        <material name="skin_mat" texture="skin_tex" texrepeat="1 1"/>
+    </asset>
+    
+    <worldbody>
+        <!-- Environment Illumination -->
+        <light pos="0 0 4" dir="0 0 -1"/>
+        <geom name="floor" type="plane" size="2 2 .1" rgba=".8 .8 .8 1"/>
+        
+        <!-- Rigid capsule obstacle -->
+        <body name="obstacle" pos="0 0 0.5">
+            <geom type="capsule" size="0.1 0.4" quat="1 0 0 0" rgba="0.7 0.7 0.7 1"/>
+        </body>
+
+        <!-- Main floating tracking frame for the sensor assembly -->
+        <body name="sensor_housing" pos="0 0 1">
+            <freejoint/>
+            <inertial pos="0 0 0" mass="0.1" diaginertia="0.001 0.001 0.001"/>
+            
+            <!-- Center Node (Bottom center of your bowl structure: z=0) -->
+            <body name="b_center" pos="0.00 0.00 0.000">
+                <joint type="ball" stiffness="0.1" damping="0.2"/>
+                <geom type="sphere" size="0.005" rgba="0.2 0.6 0.9 1" mass="0.01"/>
+            </body>
+            
+            <!-- Inner Ring (Radius r=0.05, Parabolic curve z = 4 * r^2 = 0.01) -->
+            <body name="b_north_in" pos="0.00 0.05 0.010">
+                <joint type="ball" stiffness="0.1" damping="0.2"/>
+                <geom type="sphere" size="0.005" rgba="0.2 0.6 0.9 1" mass="0.01"/>
+            </body>
+            <body name="b_south_in" pos="0.00 -0.05 0.010">
+                <joint type="ball" stiffness="0.1" damping="0.2"/>
+                <geom type="sphere" size="0.005" rgba="0.2 0.6 0.9 1" mass="0.01"/>
+            </body>
+            <body name="b_east_in" pos="0.05 0.00 0.010">
+                <joint type="ball" stiffness="0.1" damping="0.2"/>
+                <geom type="sphere" size="0.005" rgba="0.2 0.6 0.9 1" mass="0.01"/>
+            </body>
+            <body name="b_west_in" pos="-0.05 0.00 0.010">
+                <joint type="ball" stiffness="0.1" damping="0.2"/>
+                <geom type="sphere" size="0.005" rgba="0.2 0.6 0.9 1" mass="0.01"/>
+            </body>
+
+            <!-- Inner Diagonal Ring (Radius r=0.05, x and y split evenly, z=0.01) -->
+            <body name="b_ne_in" pos="0.035 0.035 0.010">
+                <joint type="ball" stiffness="0.1" damping="0.2"/>
+                <geom type="sphere" size="0.005" rgba="0.2 0.6 0.9 1" mass="0.01"/>
+            </body>
+            <body name="b_nw_in" pos="-0.035 0.035 0.010">
+                <joint type="ball" stiffness="0.1" damping="0.2"/>
+                <geom type="sphere" size="0.005" rgba="0.2 0.6 0.9 1" mass="0.01"/>
+            </body>
+            <body name="b_se_in" pos="0.035 -0.035 0.010">
+                <joint type="ball" stiffness="0.1" damping="0.2"/>
+                <geom type="sphere" size="0.005" rgba="0.2 0.6 0.9 1" mass="0.01"/>
+            </body>
+            <body name="b_sw_in" pos="-0.035 -0.035 0.010">
+                <joint type="ball" stiffness="0.1" damping="0.2"/>
+                <geom type="sphere" size="0.005" rgba="0.2 0.6 0.9 1" mass="0.01"/>
+            </body>
+
+            <!-- Outer Rim (Radius r=0.10, Parabolic curve z = 4 * r^2 = 0.04) -->
+            <body name="b_north_out" pos="0.00 0.10 0.040">
+                <joint type="ball" stiffness="0.1" damping="0.2"/>
+                <geom type="sphere" size="0.005" rgba="0.2 0.6 0.9 1" mass="0.01"/>
+            </body>
+            <body name="b_south_out" pos="0.00 -0.10 0.040">
+                <joint type="ball" stiffness="0.1" damping="0.2"/>
+                <geom type="sphere" size="0.005" rgba="0.2 0.6 0.9 1" mass="0.01"/>
+            </body>
+            <body name="b_east_out" pos="0.10 0.00 0.040">
+                <joint type="ball" stiffness="0.1" damping="0.2"/>
+                <geom type="sphere" size="0.005" rgba="0.2 0.6 0.9 1" mass="0.01"/>
+            </body>
+            <body name="b_west_out" pos="-0.10 0.00 0.040">
+                <joint type="ball" stiffness="0.1" damping="0.2"/>
+                <geom type="sphere" size="0.005" rgba="0.2 0.6 0.9 1" mass="0.01"/>
+            </body>
+
+            <!-- Outer Diagonal Rim (Radius r=0.10, x and y split evenly, z=0.04) -->
+            <body name="b_ne_out" pos="0.071 0.071 0.040">
+                <joint type="ball" stiffness="0.1" damping="0.2"/>
+                <geom type="sphere" size="0.005" rgba="0.2 0.6 0.9 1" mass="0.01"/>
+            </body>
+            <body name="b_nw_out" pos="-0.071 0.071 0.040">
+                <joint type="ball" stiffness="0.1" damping="0.2"/>
+                <geom type="sphere" size="0.005" rgba="0.2 0.6 0.9 1" mass="0.01"/>
+            </body>
+            <body name="b_se_out" pos="0.071 -0.071 0.040">
+                <joint type="ball" stiffness="0.1" damping="0.2"/>
+                <geom type="sphere" size="0.005" rgba="0.2 0.6 0.9 1" mass="0.01"/>
+            </body>
+            <body name="b_sw_out" pos="-0.071 -0.071 0.040">
+                <joint type="ball" stiffness="0.1" damping="0.2"/>
+                <geom type="sphere" size="0.005" rgba="0.2 0.6 0.9 1" mass="0.01"/>
+            </body>
+        </body >
+    </worldbody>
+</mujoco>

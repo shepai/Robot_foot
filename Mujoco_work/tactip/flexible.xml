@@ -1,0 +1,44 @@
+<mujoco model="soft_body_drop_test">
+  <compiler coordinate="local" angle="degree"/>
+
+  <option timestep="0.002" gravity="0 0 -9.81"/>
+
+  <asset>
+    <!-- 1. LOAD YOUR EXISTING OBJ FILE HERE -->
+    <!-- Note: For a flexcomp type="mesh", ensure the OBJ represents a 2D surface like a plane or grid -->
+    <mesh name="my_existing_mesh" file="/home/dexter/Documents/GitHub/Robot_foot/Mujoco_work/tactip/clean_ball.obj" scale="1 1 1"/>
+    
+    <!-- Visual textures for the scene -->
+    <texture name="grid" type="2d" builtin="checker" rgb1=".1 .2 .3" rgb2=".2 .3 .4" width="512" height="512"/>
+    <material name="grid_mat" texture="grid" texrepeat="2 2" texuniform="true"/>
+    <material name="cloth_mat" rgba="0.8 0.2 0.2 1"/>
+    <material name="cube_mat" rgba="0.2 0.6 0.8 1"/>
+  </asset>
+
+  <worldbody>
+    <!-- Light source -->
+    <light directional="true" diffuse=".8 .8 .8" specular=".2 .2 .2" pos="0 0 5" dir="0 0 -1"/>
+
+    <!-- Ground floor -->
+    <geom name="floor" type="plane" size="5 5 .1" material="grid_mat"/>
+
+    <!-- 2. THE SOFT BODY (Generated automatically from your OBJ vertices) -->
+    <!-- Elevated 1 metre in the air. The 4 corners are pinned in place. -->
+    <body name="soft_sheet_anchor" pos="0 0 1.0">
+      <flexcomp name="soft_mesh" type="mesh" file="/home/dexter/Documents/GitHub/Robot_foot/Mujoco_work/tactip/clean_ball.obj" material="cloth_mat">
+        <!-- edge equality enforces the stretching and bending physics constraints -->
+        <edge equality="true"/>
+        <!-- Optional: pin="0 1 2 3" pins the first four vertices of the mesh in space so it hangs like a hammock -->
+      </flexcomp>
+    </body>
+
+    <!-- 3. THE RIGID CUBE -->
+    <!-- Hovering at 2.5 metres, positioned directly above the soft mesh -->
+    <body name="falling_cube" pos="0 0 2.5">
+      <!-- freejoint allows the cube to fall, rotate, and bounce realistically -->
+      <freejoint/>
+      <!-- A 20cm rigid cube with realistic mass properties -->
+      <geom type="box" size="0.1 0.1 0.1" mass="2.0" material="cube_mat"/>
+    </body>
+  </worldbody>
+</mujoco>
