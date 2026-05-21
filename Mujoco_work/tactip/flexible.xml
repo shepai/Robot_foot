@@ -1,7 +1,10 @@
 <mujoco model="soft_body_drop_test">
   <compiler coordinate="local" angle="degree"/>
+     <extension>
+    <plugin plugin="mujoco.elasticity.shell" />
+  </extension>
+  <option timestep="0.002" gravity="0 0 -9.81" integrator="implicitfast" solver="CG" tolerance="1e-6"/>
 
-  <option timestep="0.002" gravity="0 0 -9.81"/>
 
   <asset>
     <!-- 1. LOAD YOUR EXISTING OBJ FILE HERE -->
@@ -25,10 +28,15 @@
     <!-- 2. THE SOFT BODY (Generated automatically from your OBJ vertices) -->
     <!-- Elevated 1 metre in the air. The 4 corners are pinned in place. -->
     <body name="soft_sheet_anchor" pos="0 0 1.0">
-      <flexcomp name="soft_mesh" type="mesh" file="/home/dexter/Documents/GitHub/Robot_foot/Mujoco_work/tactip/clean_ball.obj" material="cloth_mat">
+      <flexcomp name="soft_mesh" type="mesh" file="/home/dexter/Documents/GitHub/Robot_foot/Mujoco_work/tactip/clean_ball.obj" material="cloth_mat" mass="7">
         <!-- edge equality enforces the stretching and bending physics constraints -->
-        <edge equality="true"/>
-        <!-- Optional: pin="0 1 2 3" pins the first four vertices of the mesh in space so it hangs like a hammock -->
+        <edge equality="true" damping="1.0"/>
+        <plugin plugin="mujoco.elasticity.shell">
+            <config key="young" value="5e8"/>
+            <config key="poisson" value="0.3"/>
+            <config key="thickness" value="0.002"/>
+            <config key="damping" value="2.0"/>
+        </plugin>
       </flexcomp>
     </body>
 
