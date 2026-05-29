@@ -47,23 +47,27 @@ def generate_dome(R=1.0, n_layers=20, n_total=300,
 
     return np.array(points) / 10.0, actual_layer_counts
 
-def generate_xml(points, num,stiff=300,damp=10):
+def generate_xml(points, num,stiff=300,damp=20):
     if sum(num) != len(points):
         raise ValueError(
             f"Topology mismatch: sum(num)={sum(num)} vs len(points)={len(points)}"
         )
     xml = """<mujoco model="tactip_stable_octagonal_vault">
-    <option timestep="0.0002" gravity="0 0 -9.81"/>
-    
+     <option timestep="0.008" gravity="0 0 -9.81" integrator="implicitfast" solver="Newton" tolerance="1e-8"/>
     <worldbody>
         <light pos="0 0 4" dir="0 0 -1"/>
         <geom name="floor" type="plane" size="2 2 .1" rgba=".8 .8 .8 1"/>
-        <body name="dropping_box" pos="0 0 1.2">
+        <body name="dropping_box" pos="0 0 0.4">
             <freejoint name="box_free"/>
 
-            <geom type="box" size="0.04 0.04 0.04" rgba="0.8 0.5 0.1 1" mass="0.2" friction="1 0.005 0.005"/>
+            <geom type="box" size="0.04 0.04 0.04" rgba="0.8 0.5 0.1 1" mass="0.2" friction="1 0.005 0.005" condim="3" contype="1" conaffinity="1"/>
         </body>
-        <body name="flexible_structure" pos="0 0 0.8">
+        <body name="dropping_box2" pos="0.02 0.04 0.4">
+            <freejoint name="box_free2"/>
+
+            <geom type="box" size="0.04 0.04 0.04" rgba="0.8 0.5 0.1 1" mass="0.2" friction="1 0.005 0.005" condim="3" contype="1" conaffinity="1"/>
+        </body>
+        <body name="flexible_structure" pos="0 0 0.8" quat="0 1 0 0">
             <freejoint/>
             <inertial pos="0 0 0.03" mass="0.1" diaginertia="0.0005 0.0005 0.0005"/>
     """
@@ -71,17 +75,18 @@ def generate_xml(points, num,stiff=300,damp=10):
     # -------------------------
     # create nodes
     # -------------------------
+    allnames=""
     for i, point in enumerate(points):
         xml += f"""
         <body name="node_{i}" pos="{point[0]} {point[1]} {point[2]}">
-            <joint type="slide" axis="1 0 0" name="j_c{i}_x" stiffness="5" damping="3"/>
-            <joint type="slide" axis="0 1 0" name="j_c{i}_y" stiffness="5" damping="3"/>
-            <joint type="slide" axis="0 0 1" name="j_c{i}_z" stiffness="5" damping="3"/>
-            <geom type="sphere" size="0.005" rgba="0.0 0.6 0.0 1" mass="0.01"/>
+            <joint type="slide" axis="1 0 0" name="j_c{i}_x" stiffness="{stiff}" damping="{damp}"/>
+            <joint type="slide" axis="0 1 0" name="j_c{i}_y" stiffness="{stiff}" damping="{damp}"/>
+            <joint type="slide" axis="0 0 1" name="j_c{i}_z" stiffness="{stiff}" damping="{damp}"/>
+            <geom type="sphere" size="0.005" rgba="0.0 0.6 0.0 1" mass="0.01" condim="3" contype="1" conaffinity="1"/>
             <site name="s_c{i}" pos="0 0 0" size="0.002"/>
         </body>
         """
-
+        allnames+= f"node_{i} "
     xml += """
         </body>
     </worldbody>
@@ -105,7 +110,7 @@ def generate_xml(points, num,stiff=300,damp=10):
                 b = layer[(j + 1) % n]
 
                 xml += f"""
-                <spatial name="t_h_{i}_{j}" stiffness="{stiff}" damping="{damp}" >
+                <spatial name="t_h_{i}_{j}" solreflimit="0.008 1" solimplimit="0.95 0.99 0.001">
                     <site site="s_c{a}"/>
                     <site site="s_c{b}"/>
                 </spatial>"""
@@ -126,23 +131,27 @@ def generate_xml(points, num,stiff=300,damp=10):
                 continue
 
             xml += f"""
-            <spatial name="t_v_{i}_{j}" stiffness="{stiff}" damping="{damp}">
+            <spatial name="t_v_{i}_{j}" solreflimit="0.008 1" solimplimit="0.95 0.99 0.001">
                 <site site="s_c{a}"/>
                 <site site="s_c{b}"/>
             </spatial>"""
 
-    xml += """
+    xml += f"""
     </tendon>
+    <deformable>
+
+           
+        </deformable>
     </mujoco>
     """
 
     return xml
 # ---- generate + plot ----
 pts,ln = generate_dome(R=2.0, n_layers=10, n_total=200)
-xml=generate_xml(pts,ln) 
+xml=generate_xml(pts,ln,stiff=200,damp=10) 
 with open("/home/dexter/Documents/GitHub/Robot_foot/Mujoco_work/tactip/generated.xml","w") as file:
     file.write(xml)
-fig = plt.figure()
+"""fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
 
 ax.scatter(pts[:,0], pts[:,1], pts[:,2], s=10)
@@ -152,4 +161,4 @@ ax.set_xlabel("X")
 ax.set_ylabel("Y")
 ax.set_zlabel("Z")
 
-plt.show()
+plt.show()"""
