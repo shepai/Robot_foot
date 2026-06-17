@@ -7,7 +7,7 @@ A neater write up of the tactile sensor development making use of trained models
 - opencv
 
 # Mujuco 
-We made simulated sensors to be used as a tool for sim2real tasks. We ave made simulations of the presstip and the tactip. 
+We made simulated sensors to be used as a tool for sim2real tasks. We ave made simulations of the presstip and the tactip. The sensr itself is a separated file, that can be imported into other mujoco environment xml, making the sensors easily added to your project. 
 
 ![alt text](https://shepai.github.io/assets/tutorials/soft/tactip.png)
 
