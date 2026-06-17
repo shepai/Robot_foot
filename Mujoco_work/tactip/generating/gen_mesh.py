@@ -53,23 +53,14 @@ def generate_xml(points, num,stiff=300,damp=20):
             f"Topology mismatch: sum(num)={sum(num)} vs len(points)={len(points)}"
         )
     xml = """<mujoco model="tactip_stable_octagonal_vault">
-     <option timestep="0.008" gravity="0 0 -9.81" integrator="implicitfast" solver="Newton" tolerance="1e-8"/>
+     
      <asset>
          <material name="black_mesh_mat" rgba="0.05 0.05 0.05 1" shininess="0.1"/>
     </asset>
-    <worldbody>
-        <light pos="0 0 4" dir="0 0 -1"/>
+
+       <worldbody>
         <geom name="floor" type="plane" size="2 2 .1" rgba=".8 .8 .8 1"/>
-        <body name="dropping_box" pos="0 0 0.4">
-            <freejoint name="box_free"/>
-
-            <geom type="box" size="0.04 0.04 0.04" rgba="0.8 0.5 0.1 1" mass="0.2" friction="1 0.005 0.005" condim="3" contype="1" conaffinity="1"/>
-        </body>
-        <body name="dropping_box2" pos="0.02 0.04 0.4">
-            <freejoint name="box_free2"/>
-
-            <geom type="box" size="0.04 0.04 0.04" rgba="0.8 0.5 0.1 1" mass="0.2" friction="1 0.005 0.005" condim="3" contype="1" conaffinity="1"/>
-        </body>
+        
         <body name="flexible_structure" pos="0 0 0.8" quat="0 1 0 0">
             <freejoint/>
             <inertial pos="0 0 0.03" mass="0.1" diaginertia="0.0005 0.0005 0.0005"/>
@@ -92,7 +83,7 @@ def generate_xml(points, num,stiff=300,damp=20):
         allnames+= f"node_{i} "
     xml += """
         </body>
-    </worldbody>
+</worldbody>
     <tendon>
     """
 
@@ -180,7 +171,7 @@ def generate_xml(points, num,stiff=300,damp=20):
 # ---- generate + plot ----
 pts,ln = generate_dome(R=2.0, n_layers=10, n_total=250)
 xml=generate_xml(pts,ln,stiff=150,damp=3) 
-with open("/home/dexter/Documents/GitHub/Robot_foot/Mujoco_work/tactip/generated.xml","w") as file:
+with open("/home/dexter/Documents/GitHub/Robot_foot/Mujoco_work/tactip/generating/generated.xml","w") as file:
     file.write(xml)
 """fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')

@@ -1,0 +1,148 @@
+<mujoco model="tactip_stable_octagonal_vault">
+    <!-- Reduced timestep slightly to give the physics solver more stability during impact -->
+    <option timestep="0.0002" gravity="0 0 -9.81"/>
+     <asset>
+        <texture name="skin_tex" type="2d" file="/home/dexter/Documents/GitHub/Robot_foot/assets/example_image.png"/>
+        <material name="skin_mat" texture="skin_tex" texrepeat="1 1"/>
+         <material name="black_mesh_mat" rgba="0.05 0.05 0.05 1" shininess="0.1"/>
+    </asset>
+    <worldbody>
+        <light pos="0 0 4" dir="0 0 -1"/>
+        <geom name="floor" type="plane" size="2 2 .1" rgba=".8 .8 .8 1"/>
+        
+        <!-- Rigid obstacle to collide with 
+        <body name="obstacle" pos="0 0 0.2">
+            <geom type="capsule" size="0.05 0.2" quat="1 0 0 0" rgba="0.7 0.7 0.7 1"/>
+        </body>-->
+
+        <!-- Main Moving Container Frame -->
+        <body name="flexible_structure" pos="0 0 0.8">
+            <freejoint/>
+            <inertial pos="0 0 0.03" mass="0.1" diaginertia="0.0005 0.0005 0.0005"/>
+            
+            <!-- ==================== 3 HIGHER CENTER NODES ==================== -->
+            <!-- FIXED: Added slide joint range limits (-5cm to +5cm) and baseline damping -->
+                        <!-- ==================== 6 HIGHER CENTER HEXAGON NODES ==================== -->
+            <!-- RADIUS INCREASED TO 0.05m (Perfect midpoint relative to 0.1m outer frame) -->
+            <body name="center_1" pos="0.05 0.0 0.05">
+                <joint type="slide" axis="1 0 0" name="j_c1_x" stiffness="5" damping="3" limited="true" range="-0.05 0.05"/>
+                <joint type="slide" axis="0 1 0" name="j_c1_y" stiffness="5" damping="3" limited="true" range="-0.05 0.05"/>
+                <joint type="slide" axis="0 0 1" name="j_c1_z" stiffness="5" damping="3" limited="true" range="-0.05 0.05"/>
+                <geom type="sphere" size="0.005" rgba="0.0 0.6 0.0 1" mass="0.01"/>
+                <site name="s_c1"/>
+            </body>
+            <body name="center_2" pos="0.025 0.0433 0.05">
+                <joint type="slide" axis="1 0 0" name="j_c2_x" stiffness="5" damping="3" limited="true" range="-0.05 0.05"/>
+                <joint type="slide" axis="0 1 0" name="j_c2_y" stiffness="5" damping="3" limited="true" range="-0.05 0.05"/>
+                <joint type="slide" axis="0 0 1" name="j_c2_z" stiffness="5" damping="3" limited="true" range="-0.05 0.05"/>
+                <geom type="sphere" size="0.005" rgba="0.0 0.5 0.0 1" mass="0.01"/>
+                <site name="s_c2"/>
+            </body>
+            <body name="center_3" pos="-0.025 0.0433 0.05">
+                <joint type="slide" axis="1 0 0" name="j_c3_x" stiffness="5" damping="3" limited="true" range="-0.05 0.05"/>
+                <joint type="slide" axis="0 1 0" name="j_c3_y" stiffness="5" damping="3" limited="true" range="-0.05 0.05"/>
+                <joint type="slide" axis="0 0 1" name="j_c3_z" stiffness="5" damping="3" limited="true" range="-0.05 0.05"/>
+                <geom type="sphere" size="0.005" rgba="0.0 0.4 0.0 1" mass="0.01"/>
+                <site name="s_c3"/>
+            </body>
+            <body name="center_4" pos="-0.05 0.0 0.05">
+                <joint type="slide" axis="1 0 0" name="j_c4_x" stiffness="5" damping="3" limited="true" range="-0.05 0.05"/>
+                <joint type="slide" axis="0 1 0" name="j_c4_y" stiffness="5" damping="3" limited="true" range="-0.05 0.05"/>
+                <joint type="slide" axis="0 0 1" name="j_c4_z" stiffness="5" damping="3" limited="true" range="-0.05 0.05"/>
+                <geom type="sphere" size="0.005" rgba="0.0 0.3 0.0 1" mass="0.01"/>
+                <site name="s_c4"/>
+            </body>
+            <body name="center_5" pos="-0.025 -0.0433 0.05">
+                <joint type="slide" axis="1 0 0" name="j_c5_x" stiffness="5" damping="3" limited="true" range="-0.05 0.05"/>
+                <joint type="slide" axis="0 1 0" name="j_c5_y" stiffness="5" damping="3" limited="true" range="-0.05 0.05"/>
+                <joint type="slide" axis="0 0 1" name="j_c5_z" stiffness="5" damping="3" limited="true" range="-0.05 0.05"/>
+                <geom type="sphere" size="0.005" rgba="0.0 0.4 0.0 1" mass="0.01"/>
+                <site name="s_c5"/>
+            </body>
+            <body name="center_6" pos="0.025 -0.0433 0.05">
+                <joint type="slide" axis="1 0 0" name="j_c6_x" stiffness="5" damping="3" limited="true" range="-0.05 0.05"/>
+                <joint type="slide" axis="0 1 0" name="j_c6_y" stiffness="5" damping="3" limited="true" range="-0.05 0.05"/>
+                <joint type="slide" axis="0 0 1" name="j_c6_z" stiffness="5" damping="3" limited="true" range="-0.05 0.05"/>
+                <geom type="sphere" size="0.005" rgba="0.0 0.1 0.0 1" mass="0.01"/>
+                <site name="s_c6"/>
+            </body>
+
+
+            <!-- ==================== 8 OUTSIDE OCTAGON NODES ==================== -->
+            <body name="node_0" pos="0.1 0 0">
+                <joint type="slide" axis="1 0 0" name="j_n0_x" stiffness="3" damping="2" limited="true" range="-0.05 0.05"/><joint type="slide" axis="0 1 0" name="j_n0_y" stiffness="3" damping="2" limited="true" range="-0.05 0.05"/><joint type="slide" axis="0 0 1" name="j_n0_z" stiffness="3" damping="2" limited="true" range="-0.05 0.05"/>
+                <geom type="sphere" size="0.005" rgba="0.9 0.0 0.0 1" mass="0.01"/><site name="s_n0" />
+            </body>
+            <body name="node_45" pos="0.071 0.071 0">
+                <joint type="slide" axis="1 0 0" name="j_n45_x" stiffness="3" damping="2" limited="true" range="-0.05 0.05"/><joint type="slide" axis="0 1 0" name="j_n45_y" stiffness="3" damping="2" limited="true" range="-0.05 0.05"/><joint type="slide" axis="0 0 1" name="j_n45_z" stiffness="3" damping="2" limited="true" range="-0.05 0.05"/>
+                <geom type="sphere" size="0.005" rgba="0.9 0.0 0.0 1" mass="0.01"/><site name="s_n45"/>
+            </body>
+            <body name="node_90" pos="0 0.1 0">
+                <joint type="slide" axis="1 0 0" name="j_n90_x" stiffness="3" damping="2" limited="true" range="-0.05 0.05"/><joint type="slide" axis="0 1 0" name="j_n90_y" stiffness="3" damping="2" limited="true" range="-0.05 0.05"/><joint type="slide" axis="0 0 1" name="j_n90_z" stiffness="3" damping="2" limited="true" range="-0.05 0.05"/>
+                <geom type="sphere" size="0.005" rgba="0.8 0.0 0.0 1" mass="0.01"/><site name="s_n90"/>
+            </body>
+            <body name="node_135" pos="-0.071 0.071 0">
+                <joint type="slide" axis="1 0 0" name="j_n135_x" stiffness="3" damping="2" limited="true" range="-0.05 0.05"/><joint type="slide" axis="0 1 0" name="j_n135_y" stiffness="3" damping="2" limited="true" range="-0.05 0.05"/><joint type="slide" axis="0 0 1" name="j_n135_z" stiffness="3" damping="2" limited="true" range="-0.05 0.05"/>
+                <geom type="sphere" size="0.005" rgba="0.7 0.0 0.0 1" mass="0.01"/><site name="s_n135"/>
+            </body>
+            <body name="node_180" pos="-0.1 0 0">
+                <joint type="slide" axis="1 0 0" name="j_n180_x" stiffness="3" damping="2" limited="true" range="-0.05 0.05"/><joint type="slide" axis="0 1 0" name="j_n180_y" stiffness="3" damping="2" limited="true" range="-0.05 0.05"/><joint type="slide" axis="0 0 1" name="j_n180_z" stiffness="3" damping="2" limited="true" range="-0.05 0.05"/>
+                <geom type="sphere" size="0.005" rgba="0.6 0.0 0.0 1" mass="0.01"/><site name="s_n180"/>
+            </body>
+            <body name="node_225" pos="-0.071 -0.071 0">
+                <joint type="slide" axis="1 0 0" name="j_n225_x" stiffness="3" damping="2" limited="true" range="-0.05 0.05"/><joint type="slide" axis="0 1 0" name="j_n225_y" stiffness="3" damping="2" limited="true" range="-0.05 0.05"/><joint type="slide" axis="0 0 1" name="j_n225_z" stiffness="3" damping="2" limited="true" range="-0.05 0.05"/>
+                <geom type="sphere" size="0.005" rgba="0.5 0.0 0.0 1" mass="0.01"/><site name="s_n225"/>
+            </body>
+            <body name="node_270" pos="0 -0.1 0">
+                <joint type="slide" axis="1 0 0" name="j_n270_x" stiffness="3" damping="2" limited="true" range="-0.05 0.05"/><joint type="slide" axis="0 1 0" name="j_n270_y" stiffness="3" damping="2" limited="true" range="-0.05 0.05"/><joint type="slide" axis="0 0 1" name="j_n270_z" stiffness="3" damping="2" limited="true" range="-0.05 0.05"/>
+                <geom type="sphere" size="0.005" rgba="0.4 0.0 0.0 1" mass="0.01"/><site name="s_n270"/>
+            </body>
+            <body name="node_315" pos="0.071 -0.071 0">
+                <joint type="slide" axis="1 0 0" name="j_n315_x" stiffness="3" damping="2" limited="true" range="-0.05 0.05"/><joint type="slide" axis="0 1 0" name="j_n315_y" stiffness="3" damping="2" limited="true" range="-0.05 0.05"/><joint type="slide" axis="0 0 1" name="j_n315_z" stiffness="3" damping="2" limited="true" range="-0.05 0.05"/>
+                <geom type="sphere" size="0.005" rgba="0.3 0.0 0.0 1" mass="0.01"/><site name="s_n315"/>
+            </body>
+        
+        </body>
+
+    </worldbody>
+<deformable>
+        <!-- Setting vertex to 0 0 0 positions the mesh points exactly at the origins of the tracked bodies -->
+        <flex name="black_skin" 
+              material="black_mesh_mat" 
+              dim="2"
+              body="center_1 center_2 center_3 "
+              vertex="0 0 0   0 0 0   0 0 0 "
+              element="0 1 2   "/>
+    </deformable>
+
+    <!-- ==================== ELASTIC RUBBER TENDON WEB ==================== -->
+   <tendon>
+        <!-- 1. Outer Octagon Frame Rings (PERFECTLY RIGID FRAME) -->
+        <spatial name="t_o1" solreflimit="0.001 1" solimplimit="0.99 0.999 0.001" springlength="0.0765"><site site="s_n0"/><site site="s_n45"/></spatial>
+        <spatial name="t_o2" solreflimit="0.001 1" solimplimit="0.99 0.999 0.001" springlength="0.0765"><site site="s_n45"/><site site="s_n90"/></spatial>
+        <spatial name="t_o3" solreflimit="0.001 1" solimplimit="0.99 0.999 0.001" springlength="0.0765"><site site="s_n90"/><site site="s_n135"/></spatial>
+        <spatial name="t_o4" solreflimit="0.001 1" solimplimit="0.99 0.999 0.001" springlength="0.0765"><site site="s_n135"/><site site="s_n180"/></spatial>
+        <spatial name="t_o5" solreflimit="0.001 1" solimplimit="0.99 0.999 0.001" springlength="0.0765"><site site="s_n180"/><site site="s_n225"/></spatial>
+        <spatial name="t_o6" solreflimit="0.001 1" solimplimit="0.99 0.999 0.001" springlength="0.0765"><site site="s_n225"/><site site="s_n270"/></spatial>
+        <spatial name="t_o7" solreflimit="0.001 1" solimplimit="0.99 0.999 0.001" springlength="0.0765"><site site="s_n270"/><site site="s_n315"/></spatial>
+        <spatial name="t_o8" solreflimit="0.001 1" solimplimit="0.99 0.999 0.001" springlength="0.0765"><site site="s_n315"/><site site="s_n0"/></spatial>
+
+        <!-- 2. Internal Center Hexagon Loop (PERFECTLY RIGID APEX RING) -->
+        <spatial name="t_ring_1" solreflimit="0.001 1" solimplimit="0.99 0.999 0.001" springlength="0.035"><site site="s_c1"/><site site="s_c2"/></spatial>
+        <spatial name="t_ring_2" solreflimit="0.001 1" solimplimit="0.99 0.999 0.001" springlength="0.035"><site site="s_c2"/><site site="s_c3"/></spatial>
+        <spatial name="t_ring_3" solreflimit="0.001 1" solimplimit="0.99 0.999 0.001" springlength="0.035"><site site="s_c3"/><site site="s_c4"/></spatial>
+        <spatial name="t_ring_4" solreflimit="0.001 1" solimplimit="0.99 0.999 0.001" springlength="0.035"><site site="s_c4"/><site site="s_c5"/></spatial>
+        <spatial name="t_ring_5" solreflimit="0.001 1" solimplimit="0.99 0.999 0.001" springlength="0.035"><site site="s_c5"/><site site="s_c6"/></spatial>
+        <spatial name="t_ring_6" solreflimit="0.001 1" solimplimit="0.99 0.999 0.001" springlength="0.035"><site site="s_c6"/><site site="s_c1"/></spatial>
+
+        <!-- 3. Flexible Triangulated Spokes (FLEXIBLE RUBBER MEMBRANE) -->
+        <!-- Each of the 8 outer nodes splits into 2 tendons targeting its closest inner pairs -->
+        <spatial name="t_w_n0_a" stiffness="150" damping="8" springlength="0.06"><site site="s_n0"/><site site="s_c1"/></spatial>
+        <spatial name="t_w_n1_a" stiffness="150" damping="8" springlength="0.06"><site site="s_n45"/><site site="s_c2"/></spatial>
+        <spatial name="t_w_n2_a" stiffness="150" damping="8" springlength="0.06"><site site="s_n90"/><site site="s_c3"/></spatial>
+        <spatial name="t_w_n3_a" stiffness="150" damping="8" springlength="0.06"><site site="s_n180"/><site site="s_c4"/></spatial>
+        <spatial name="t_w_n4_a" stiffness="150" damping="8" springlength="0.06"><site site="s_n225"/><site site="s_c5"/></spatial>
+        <spatial name="t_w_n5_a" stiffness="150" damping="8" springlength="0.06"><site site="s_n270"/><site site="s_c6"/></spatial>
+    
+    </tendon>
+</mujoco>

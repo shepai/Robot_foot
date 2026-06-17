@@ -3,13 +3,13 @@
      <extension>
     <plugin plugin="mujoco.elasticity.shell" />
   </extension>
-  <option timestep="0.002" gravity="0 0 -9.81" integrator="implicitfast" solver="CG" tolerance="1e-6"/>
+  <option timestep="0.0005" gravity="0 0 -9.81" integrator="implicitfast" solver="Newton" tolerance="1e-8"/>
 
 
   <asset>
     <!-- 1. LOAD YOUR EXISTING OBJ FILE HERE -->
     <!-- Note: For a flexcomp type="mesh", ensure the OBJ represents a 2D surface like a plane or grid -->
-    <mesh name="my_existing_mesh" file="/home/dexter/Documents/GitHub/Robot_foot/Mujoco_work/tactip/clean_ball.obj" scale="1 1 1"/>
+    <mesh name="my_existing_mesh" file="/home/dexter/Documents/GitHub/Robot_foot/assets/dome_small.obj" scale="1 1 1"/>
     
     <!-- Visual textures for the scene -->
     <texture name="grid" type="2d" builtin="checker" rgb1=".1 .2 .3" rgb2=".2 .3 .4" width="512" height="512"/>
@@ -27,22 +27,22 @@
 
     <!-- 2. THE SOFT BODY (Generated automatically from your OBJ vertices) -->
     <!-- Elevated 1 metre in the air. The 4 corners are pinned in place. -->
-    <body name="soft_sheet_anchor" pos="0 0 1.0">
-      <flexcomp name="soft_mesh" type="mesh" file="/home/dexter/Documents/GitHub/Robot_foot/Mujoco_work/tactip/clean_ball.obj" material="cloth_mat" mass="7">
+    <body name="soft_sheet_anchor" pos="0 0 0.4">
+      <flexcomp name="soft_mesh" type="mesh" file="/home/dexter/Documents/GitHub/Robot_foot/assets/dome_small.obj" scale="1 1 1" material="cloth_mat" mass="7">
         <!-- edge equality enforces the stretching and bending physics constraints -->
-        <edge equality="true" damping="1.0"/>
+        <edge equality="true" damping="15"/>
         <plugin plugin="mujoco.elasticity.shell">
-            <config key="young" value="5e8"/>
-            <config key="poisson" value="0.3"/>
+            <config key="young" value="5e7"/>
+            <config key="poisson" value="0.25"/>
             <config key="thickness" value="0.002"/>
-            <config key="damping" value="2.0"/>
+            <config key="damping" value="40"/>
         </plugin>
       </flexcomp>
     </body>
 
     <!-- 3. THE RIGID CUBE -->
     <!-- Hovering at 2.5 metres, positioned directly above the soft mesh -->
-    <body name="falling_cube" pos="0 0 2.5">
+    <body name="falling_cube" pos="0 0 0.1">
       <!-- freejoint allows the cube to fall, rotate, and bounce realistically -->
       <freejoint/>
       <!-- A 20cm rigid cube with realistic mass properties -->

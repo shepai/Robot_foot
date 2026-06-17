@@ -3,7 +3,7 @@
     
     <!-- FIX 1 & 2: Separated tags, removed procedural conflict to load image path directly -->
     <asset>
-        <texture name="skin_tex" type="2d" file="/home/dexter/Documents/GitHub/Robot_foot/assets/example_image.png"/>
+        <texture name="skin_tex" type="2d" file="/home/dexter/Documents/GitHub/Robot_foot/assets/1665_Girl_with_a_Pearl_Earring.png"/>
         <material name="skin_mat" texture="skin_tex" texrepeat="1 1"/>
     </asset>
     
