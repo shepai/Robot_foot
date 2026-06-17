@@ -54,6 +54,9 @@ def generate_xml(points, num,stiff=300,damp=20):
         )
     xml = """<mujoco model="tactip_stable_octagonal_vault">
      <option timestep="0.008" gravity="0 0 -9.81" integrator="implicitfast" solver="Newton" tolerance="1e-8"/>
+     <asset>
+         <material name="black_mesh_mat" rgba="0.05 0.05 0.05 1" shininess="0.1"/>
+    </asset>
     <worldbody>
         <light pos="0 0 4" dir="0 0 -1"/>
         <geom name="floor" type="plane" size="2 2 .1" rgba=".8 .8 .8 1"/>
@@ -82,7 +85,7 @@ def generate_xml(points, num,stiff=300,damp=20):
             <joint type="slide" axis="1 0 0" name="j_c{i}_x" stiffness="{stiff}" damping="{damp}"/>
             <joint type="slide" axis="0 1 0" name="j_c{i}_y" stiffness="{stiff}" damping="{damp}"/>
             <joint type="slide" axis="0 0 1" name="j_c{i}_z" stiffness="{stiff}" damping="{damp}"/>
-            <geom type="sphere" size="0.005" rgba="0.0 0.6 0.0 1" mass="0.01" condim="3" contype="1" conaffinity="1"/>
+            <geom type="sphere" size="0.009" rgba="1 1 1 1" mass="0.01" condim="3" contype="1" conaffinity="1"/>
             <site name="s_c{i}" pos="0 0 0" size="0.002"/>
         </body>
         """
@@ -135,20 +138,48 @@ def generate_xml(points, num,stiff=300,damp=20):
                 <site site="s_c{a}"/>
                 <site site="s_c{b}"/>
             </spatial>"""
+    elements = []
+    for i in range(len(layers) - 1):
+        curr = layers[i]
+        nxt = layers[i + 1]
+        n_curr = len(curr)
+        n_nxt = len(nxt)
 
+        if n_curr == 1: # Apex layer fanning out
+            apex = curr[0]
+            for j in range(n_nxt):
+                elements.append(f"{apex} {nxt[j]} {nxt[(j + 1) % n_nxt]}")
+        else: # Standard concentric rings stitching together
+            for j in range(n_curr):
+                c1, c2 = curr[j], curr[(j + 1) % n_curr]
+                k1 = min(max(int(j * n_nxt / n_curr), 0), n_nxt - 1)
+                k2 = min(max(int(((j + 1) % n_curr) * n_nxt / n_curr), 0), n_nxt - 1)
+                
+                # Draw the structural triangle grids between the layers
+                elements.append(f"{c1} {nxt[k1]} {c2}")
+                if k1 != k2:
+                    elements.append(f"{c2} {nxt[k1]} {nxt[k2]}")
+
+    element_str = "   ".join(elements)
+    body_str = " ".join([f"node_{i}" for i in range(len(points))])
+    vertex_str = "   ".join(["0 0 0" for _ in range(len(points))])
     xml += f"""
     </tendon>
     <deformable>
-
-           
-        </deformable>
+        <flex name="black_skin" 
+              material="black_mesh_mat" 
+              dim="2"
+              body="{body_str}"
+              vertex="{vertex_str}"
+              element="{element_str}"/>
+    </deformable>
     </mujoco>
     """
 
     return xml
 # ---- generate + plot ----
-pts,ln = generate_dome(R=2.0, n_layers=10, n_total=200)
-xml=generate_xml(pts,ln,stiff=200,damp=10) 
+pts,ln = generate_dome(R=2.0, n_layers=10, n_total=250)
+xml=generate_xml(pts,ln,stiff=150,damp=3) 
 with open("/home/dexter/Documents/GitHub/Robot_foot/Mujoco_work/tactip/generated.xml","w") as file:
     file.write(xml)
 """fig = plt.figure()
