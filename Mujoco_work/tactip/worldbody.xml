@@ -4,6 +4,13 @@
         <body name="flexible_structure" pos="0 0 0.8" quat="0 1 0 0">
             <freejoint />
             <inertial pos="0 0 0.03" mass="0.1" diaginertia="0.0005 0.0005 0.0005" />
+            <body name="cylinder_mount" pos="0 0 -0.1">
+                <geom type="cylinder" size="0.20 0.1" mass="0.05" rgba="1 1 1 1" />
+            
+            </body>
+            <camera name="sensor_cam" pos="0 0 -0.09" fovy="120" zaxis="0 0 -1" />
+
+            <light name="sensor_light" pos="0 0 -0.1" dir="0 0 -1" diffuse="0.8 0.8 0.8" specular="0.2 0.2 0.2" directional="true" />
     
         <body name="node_0" pos="0.2 0.0 0.0">
             <joint type="slide" axis="1 0 0" name="j_c0_x" stiffness="150" damping="3" />

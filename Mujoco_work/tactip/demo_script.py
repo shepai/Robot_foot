@@ -7,7 +7,7 @@ print(f"--- ACTIVE ENVIRONMENT: MuJoCo {mujoco.__version__} ---")
 
 def main():
     try:
-        model = mujoco.MjModel.from_xml_path("/home/dexter/Documents/GitHub/Robot_foot/Mujoco_work/tactip/generating/generated.xml")
+        model = mujoco.MjModel.from_xml_path("/home/dexter/Documents/GitHub/Robot_foot/Mujoco_work/tactip/tactile_env.xml")
         data = mujoco.MjData(model)
         print("Success! Model parsed, reference angles assigned, and scene compiled perfectly.")
     except Exception as e:
