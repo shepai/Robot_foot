@@ -8,7 +8,7 @@ for tag in ["asset", "worldbody", "tendon", "actuator", "sensor","deformable"]:
 
     if elem is not None:
         ET.ElementTree(elem).write(
-            f"/home/dexter/Documents/GitHub/Robot_foot/Mujoco_work/tactip/generating/{tag}.xml",
+            f"/home/dexter/Documents/GitHub/Robot_foot/Mujoco_work/tactip/{tag}.xml",
             encoding="utf-8",
             xml_declaration=False,
         )
