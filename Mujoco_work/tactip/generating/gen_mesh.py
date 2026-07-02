@@ -50,62 +50,55 @@ def generate_dome(R=1.0, n_layers=20, n_total=300,
         actual_layer_counts.append(n_pts)
 
     return np.array(points) / 10.0, actual_layer_counts
-
 def generate_xml(points, num,stiff=300,damp=20):
     if sum(num) != len(points):
         raise ValueError(
             f"Topology mismatch: sum(num)={sum(num)} vs len(points)={len(points)}"
         )
-    xml = """<mujoco model="tactip_stable_octagonal_vault">
+    xml = f"""<mujoco model="flexible_structure" >
      <option integrator="implicitfast" timestep="0.001"/> 
      <asset>
          <material name="black_mesh_mat" rgba="0.05 0.05 0.05 1" shininess="0.1"/>
     </asset>
        <worldbody>
-        <geom name="floor" type="plane" size="2 2 .1" rgba=".8 .8 .8 1"/>
-
-        <body name="flexible_structure" pos="0 0 0.8" quat="0 1 0 0">
-            <freejoint/>
+        <body name="flexible_structure" pos="0 0 0" quat="0 0.7071 0.7071 0">
             <inertial pos="0 0 0" mass="0.1" diaginertia="0.0005 0.0005 0.0005"/>
-            <body name="cylinder_mount" pos="0 0 -0.05">
-                <geom type="cylinder"
-                    size="0.05 0.05"
-                    mass="0.05"
-                    rgba="1 1 1 1"/>
+            """
+    xml += f"""
+        <body name="cylinder_mount" pos="0 0 -0.02">
+            <geom type="cylinder" size="0.04 0.02" mass="0.05" rgba="1 1 1 1" />
             
             </body>
-            <camera name="sensor_cam"
-            pos="0 0 -0.001"
-            fovy="120"
-            zaxis="0 0 -1"/>
+            <camera name="sensor_cam" pos="0 0 -0.002" fovy="120" zaxis="0 0 -1" />
 
-            <light name="sensor_light"
-           pos="0 0 -0.1"
-           dir="0 0 -1"
-           diffuse="0.8 0.8 0.8"
-           specular="0.2 0.2 0.2"
-           directional="true"/>
+            <light name="sensor_light" pos="0 0 -0.1" dir="0 0 -1" diffuse="0.8 0.8 0.8" specular="0.2 0.2 0.2" directional="true" />
+    
     """
-
+    layers = []
+    idx = 0
+    for n in num:
+        layers.append(list(range(idx, idx + n)))
+        idx += n
     # -------------------------
     # create nodes
     # -------------------------
     allnames=""
-    for i, point in enumerate(points):
-        inner_pos = point *-0.1
+    for i in range(len(points)):
+        point = points[i]
+        inner_pos = point * -0.2
         xml += f"""
         <body name="node_{i}" pos="{point[0]} {point[1]} {point[2]}">
             <joint type="slide" axis="1 0 0" name="j_c{i}_x" stiffness="{stiff}" damping="{damp}"/>
             <joint type="slide" axis="0 1 0" name="j_c{i}_y" stiffness="{stiff}" damping="{damp}"/>
             <joint type="slide" axis="0 0 1" name="j_c{i}_z" stiffness="{stiff}" damping="{damp}"/>
-            <geom type="sphere" size="0.002" rgba="1 1 1 0" mass="0.01" condim="3" contype="1" conaffinity="1"/>
+            <geom type="sphere" size="0.001" rgba="1 1 1 0" mass="0.01" condim="3" contype="1" conaffinity="1"/>
             <geom pos="{inner_pos[0]} {inner_pos[1]} {inner_pos[2]}" type="sphere" size="0.002" rgba="1 1 1 1" 
             
-                  group="1" 
-                  contype="0" 
-                  conaffinity="0" 
-                  mass="0" 
-                  density="0"/>
+                group="1" 
+                contype="0" 
+                conaffinity="0" 
+                mass="0" 
+                density="0"/>
             <site name="s_c{i}" pos="0 0 0" size="0.002"/>
         </body>
         """
@@ -115,15 +108,7 @@ def generate_xml(points, num,stiff=300,damp=20):
 </worldbody>
     <tendon>
     """
-
-    # -------------------------
-    # build layer structure
-    # -------------------------
-    layers = []
-    idx = 0
-    for n in num:
-        layers.append(list(range(idx, idx + n)))
-        idx += n
+    
     for i, layer in enumerate(layers):
         n = len(layer)
 
@@ -131,13 +116,13 @@ def generate_xml(points, num,stiff=300,damp=20):
             if n != 1:
                 a = layer[j]
                 b = layer[(j + 1) % n]
-
                 xml += f"""
-                <spatial width="0.002" name="t_h_{i}_{j}" solreflimit="0.008 1" solimplimit="0.95 0.99 0.001">
+                <spatial width="0.002" name="t_h_{i}_{j}" 
+                        damping="2"
+                        solreflimit="0.008 1" solimplimit="0.95 0.99 0.001">
                     <site site="s_c{a}"/>
                     <site site="s_c{b}"/>
                 </spatial>"""
-
 
     for i in range(len(layers) - 1):
         curr = layers[i]
@@ -157,6 +142,29 @@ def generate_xml(points, num,stiff=300,damp=20):
             <spatial width="0.002" name="t_v_{i}_{j}" solreflimit="0.008 1" solimplimit="0.95 0.99 0.001">
                 <site site="s_c{a}"/>
                 <site site="s_c{b}"/>
+            </spatial>"""
+    center = layers[0][0]
+    spoke_stiff = 1500
+    spoke_damp = 15
+    for i in range(len(layers)):
+        curr = layers[i]
+
+        for j in range(0, len(curr), 1):  
+            a = curr[j]
+
+            if a == center:
+                continue
+
+            xml += f"""
+            <spatial width="0.002"
+                    rgba="0 1 0 0"
+                    name="t_spoke_{i}_{j}"
+                    stiffness="{spoke_stiff}"
+                    damping="{spoke_damp}"
+                    solreflimit="0.005 1"
+                    solimplimit="0.9 0.95 0.001">
+                <site site="s_c{center}"/>
+                <site site="s_c{a}"/>
             </spatial>"""
     elements = []
     for i in range(len(layers) - 1):
@@ -193,21 +201,23 @@ def generate_xml(points, num,stiff=300,damp=20):
               vertex="{vertex_str}"
               element="{element_str}"/>
     </deformable>
+    """
+    xml += "<equality>\n"
+    for i in range(num[0]):
+        xml += f'  <joint joint1="j_c{i}_x" polycoef="0 1 0 0 0"/>\n'
+        xml += f'  <joint joint1="j_c{i}_y" polycoef="0 1 0 0 0"/>\n'
+        xml += f'  <joint joint1="j_c{i}_z" polycoef="0 1 0 0 0"/>\n'
+    xml += """</equality>\n
     </mujoco>
     """
-    """
-    <flex name="black_skin" 
-              material="black_mesh_mat" 
-              dim="2"
-              body="{body_str}"
-              vertex="{vertex_str}"
-              element="{element_str}"/>"""
+    
     return xml
 # ---- generate + plot ----
-pts,ln = generate_dome(R=0.5, n_layers=5, n_total=50)
-xml=generate_xml(pts,ln,stiff=110,damp=3) 
+pts,ln = generate_dome(R=0.3, n_layers=5, n_total=60)
+xml=generate_xml(pts,ln,stiff=100,damp=50) 
 with open("/home/dexter/Documents/GitHub/Robot_foot/Mujoco_work/tactip/generating/generated.xml","w") as file:
     file.write(xml)
+import seperate
 """fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
 
