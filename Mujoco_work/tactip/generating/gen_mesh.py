@@ -2,54 +2,61 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 def generate_dome(R=1.0, n_layers=20, n_total=300,
-                  tip_layer_density=2.0, min_pts=6):
-
-    points = []
+                  tip_layer_density=2.0, min_pts=6,
+                  remove_bottom_layers=1):
+    layers = []  # each element is (Ni x 3)
     actual_layer_counts = []
 
-    # 1. GENERATE NON-LINEAR Z-LAYERS
-    # t goes from 0 to 1 linearly
+    # -------------------------
+    # Z layer generation
+    # -------------------------
     t = np.linspace(0, 1, n_layers)
-    
-    # Using a sine distribution pushes more z-layers toward the top (R)
-    # As t approaches 1, sin(t * pi/2) slows down, clustering the layers tightly at the tip.
-    # Adjust tip_layer_density (exponent) to group them even closer.
     z_vals = R * (np.sin(t * np.pi / 2) ** (1 / tip_layer_density))
 
-    # 2. ALLOCATE POINTS EVENLY ACROSS THE NEW LAYERS
-    # We want a relatively flat profile per ring so layers don't starve.
-    # Give a slight weight to circumferences so lower rings still close properly.
     circumferences = 2 * np.pi * np.sqrt(np.maximum(R**2 - z_vals**2, 0))
-    weights = circumferences + 1.0  # The + 1.0 prevents top rings from dropping to 0 points
+    weights = circumferences + 1.0
     weights = weights / weights.sum()
 
     layer_counts = (weights * n_total).astype(int)
 
-    for i, (z, n_pts) in enumerate(zip(z_vals, layer_counts)):
+    # -------------------------
+    # Build layers
+    # -------------------------
+    for z, n_pts in zip(z_vals, layer_counts):
+
         r = np.sqrt(max(R**2 - z**2, 0))
 
-        # -------------------------
-        # apex layer handling
-        # -------------------------
-        if r < 1e-8 or i == len(z_vals) - 1:
-            points.append((0.0, 0.0, R))
+        # apex handling
+        if r < 1e-8:
+            layers.append(np.array([[0.0, 0.0, R]]))
             actual_layer_counts.append(1)
             continue
 
-        # Keep a healthy minimum of points per ring so the mesh remains stable
         n_pts = max(min_pts, n_pts)
 
-        theta = np.linspace(0, 2*np.pi, n_pts, endpoint=False)
+        theta = np.linspace(0, 2 * np.pi, n_pts, endpoint=False)
 
         x = r * np.cos(theta)
         y = r * np.sin(theta)
 
-        for xi, yi in zip(x, y):
-            points.append((xi, yi, z))
+        layer = np.column_stack([x, y, np.full_like(x, z)])
 
+        layers.append(layer)
         actual_layer_counts.append(n_pts)
 
-    return np.array(points) / 10.0, actual_layer_counts
+    # -------------------------
+    # REMOVE TOP LAYERS (CORRECT)
+    # -------------------------
+    if remove_bottom_layers > 0:
+        layers = layers[remove_bottom_layers:]
+        actual_layer_counts = actual_layer_counts[remove_bottom_layers:]
+
+    # -------------------------
+    # FLATTEN FINAL POINTS
+    # -------------------------
+    points = np.vstack(layers)
+
+    return points / 10.0, actual_layer_counts
 def generate_xml(points, num,stiff=300,damp=20):
     if sum(num) != len(points):
         raise ValueError(
@@ -88,10 +95,10 @@ def generate_xml(points, num,stiff=300,damp=20):
         inner_pos = point * -0.2
         xml += f"""
         <body name="node_{i}" pos="{point[0]} {point[1]} {point[2]}">
-            <joint type="slide" axis="1 0 0" name="j_c{i}_x" stiffness="{stiff}" damping="{damp}"/>
-            <joint type="slide" axis="0 1 0" name="j_c{i}_y" stiffness="{stiff}" damping="{damp}"/>
-            <joint type="slide" axis="0 0 1" name="j_c{i}_z" stiffness="{stiff}" damping="{damp}"/>
-            <geom type="sphere" size="0.001" rgba="1 1 1 0" mass="0.01" condim="3" contype="1" conaffinity="1"/>
+            <joint type="slide" springref="0" limited="true" range="-0.02 0.02" axis="1 0 0" name="j_c{i}_x" stiffness="{stiff}" damping="{damp}"  armature="0.001"/>
+            <joint type="slide" springref="0" limited="true" range="-0.02 0.02" axis="0 1 0" name="j_c{i}_y" stiffness="{stiff}" damping="{damp}"  armature="0.001"/>
+            <joint type="slide" springref="0" limited="true" range="-0.02 0.02" axis="0 0 1" name="j_c{i}_z" stiffness="{stiff}" damping="{damp}"  armature="0.001"/>
+            <geom type="sphere" size="0.001" rgba="1 1 1 0" mass="0.001" condim="3" contype="1" conaffinity="1" group="1"/>
             <geom pos="{inner_pos[0]} {inner_pos[1]} {inner_pos[2]}" type="sphere" size="0.002" rgba="1 1 1 1" 
             
                 group="1" 
@@ -117,7 +124,7 @@ def generate_xml(points, num,stiff=300,damp=20):
                 a = layer[j]
                 b = layer[(j + 1) % n]
                 xml += f"""
-                <spatial width="0.002" name="t_h_{i}_{j}" 
+                <spatial width="0.0015" name="t_h_{i}_{j}" 
                         damping="2"
                         solreflimit="0.008 1" solimplimit="0.95 0.99 0.001">
                     <site site="s_c{a}"/>
@@ -139,7 +146,7 @@ def generate_xml(points, num,stiff=300,damp=20):
                 continue
 
             xml += f"""
-            <spatial width="0.002" name="t_v_{i}_{j}" solreflimit="0.008 1" solimplimit="0.95 0.99 0.001">
+            <spatial width="0.0015" name="t_v_{i}_{j}" solreflimit="0.008 1" solimplimit="0.95 0.99 0.001">
                 <site site="s_c{a}"/>
                 <site site="s_c{b}"/>
             </spatial>"""
@@ -149,14 +156,14 @@ def generate_xml(points, num,stiff=300,damp=20):
     for i in range(len(layers)):
         curr = layers[i]
 
-        for j in range(0, len(curr), 1):  
+        for j in range(0, len(curr), 3):  
             a = curr[j]
 
             if a == center:
                 continue
 
             xml += f"""
-            <spatial width="0.002"
+            <spatial width="0.0005"
                     rgba="0 1 0 0"
                     name="t_spoke_{i}_{j}"
                     stiffness="{spoke_stiff}"
@@ -213,8 +220,8 @@ def generate_xml(points, num,stiff=300,damp=20):
     
     return xml
 # ---- generate + plot ----
-pts,ln = generate_dome(R=0.3, n_layers=5, n_total=60)
-xml=generate_xml(pts,ln,stiff=100,damp=50) 
+pts,ln = generate_dome(R=0.35, n_layers=5, n_total=80,remove_bottom_layers=0)
+xml=generate_xml(pts,ln,stiff=150,damp=3) 
 with open("/home/dexter/Documents/GitHub/Robot_foot/Mujoco_work/tactip/generating/generated.xml","w") as file:
     file.write(xml)
 import seperate
